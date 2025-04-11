@@ -93,6 +93,21 @@
 
             </RelativeLayout>
 
+
+            <RelativeLayout
+                android:id="@+id/settings_auto_record_calls_holder"
+                style="@style/SettingsHolderCheckboxStyle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.simplemobiletools.commons.views.MyAppCompatCheckbox
+                    android:id="@+id/settings_auto_record_calls"
+                    style="@style/SettingsCheckboxStyle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/auto_record_calls" />
+            </RelativeLayout>
+
             <RelativeLayout
                 android:id="@+id/settings_language_holder"
                 style="@style/SettingsHolderTextViewStyle"
@@ -436,4 +451,5 @@
             </RelativeLayout>
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

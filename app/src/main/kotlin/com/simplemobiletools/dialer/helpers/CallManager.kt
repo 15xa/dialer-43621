@@ -1,16 +1,25 @@
 package com.simplemobiletools.dialer.helpers
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.Intent
+import android.os.Build
 import android.os.Handler
 import android.telecom.Call
 import android.telecom.CallAudioState
 import android.telecom.InCallService
 import android.telecom.VideoProfile
+import androidx.annotation.RequiresApi
+import androidx.preference.PreferenceManager
 import com.simplemobiletools.dialer.extensions.getStateCompat
 import com.simplemobiletools.dialer.extensions.hasCapability
 import com.simplemobiletools.dialer.extensions.isConference
 import com.simplemobiletools.dialer.models.AudioRoute
+import com.simplemobiletools.dialer.services.CallRecordingService
+import com.simplemobiletools.dialer.services.CallService
 import java.util.concurrent.CopyOnWriteArraySet
+
+
 
 // inspired by https://github.com/Chooloo/call_manage
 class CallManager {
@@ -21,12 +30,20 @@ class CallManager {
         private val calls = mutableListOf<Call>()
         private val listeners = CopyOnWriteArraySet<CallManagerListener>()
 
-        fun onCallAdded(call: Call) {
+        @RequiresApi(Build.VERSION_CODES.O)
+        fun onCallAdded(context: Context, call: Call) {
+            val prefs = PreferenceManager.getDefaultSharedPreferences(context)
+            val intent = Intent(context, CallRecordingService::class.java).apply {
+                putExtra("AUTO_RECORD_ENABLED", prefs.getBoolean("auto_record_enabled", false))
+            }
+            context.startForegroundService(intent)
+
             this.call = call
             calls.add(call)
             for (listener in listeners) {
                 listener.onPrimaryCallChanged(call)
             }
+
             call.registerCallback(object : Call.Callback() {
                 override fun onStateChanged(call: Call, state: Int) {
                     updateState()
@@ -42,10 +59,17 @@ class CallManager {
             })
         }
 
-        fun onCallRemoved(call: Call) {
+
+        fun onCallRemoved(context: Context, call: Call) {
+            val stopIntent = Intent(context, CallRecordingService::class.java).apply {
+                action = "STOP_RECORDING"
+            }
+            context.startService(stopIntent)
+
             calls.remove(call)
             updateState()
         }
+
 
         fun onAudioStateChanged(audioState: CallAudioState) {
             val route = AudioRoute.fromRoute(audioState.route) ?: return

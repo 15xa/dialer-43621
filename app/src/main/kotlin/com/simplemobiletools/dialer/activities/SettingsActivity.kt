@@ -18,7 +18,6 @@ import com.simplemobiletools.dialer.R
 import com.simplemobiletools.dialer.databinding.ActivitySettingsBinding
 import com.simplemobiletools.dialer.dialogs.ExportCallHistoryDialog
 import com.simplemobiletools.dialer.dialogs.ManageVisibleTabsDialog
-import com.simplemobiletools.dialer.extensions.config
 import com.simplemobiletools.dialer.helpers.RecentsHelper
 import com.simplemobiletools.dialer.models.RecentCall
 import kotlinx.serialization.SerializationException
@@ -26,8 +25,16 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.*
 import kotlin.system.exitProcess
+import android.widget.CompoundButton
+import androidx.annotation.RequiresApi
+import com.simplemobiletools.dialer.helpers.Config
+
+
+
 
 class SettingsActivity : SimpleActivity() {
+    lateinit var config: Config
+
     companion object {
         private const val CALL_HISTORY_FILE_TYPE = "application/json"
     }
@@ -53,6 +60,8 @@ class SettingsActivity : SimpleActivity() {
         isMaterialActivity = true
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
+        config = Config(this)
+
 
         binding.apply {
             updateMaterialActivityViews(settingsCoordinator, settingsHolder, useTransparentNavigation = true, useTopSearchMenu = false)
@@ -60,10 +69,14 @@ class SettingsActivity : SimpleActivity() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onResume() {
         super.onResume()
+        var myConfig = Config(this)
+
         setupToolbar(binding.settingsToolbar, NavigationIcon.Arrow)
 
+        setupAutoRecord()
         setupPurchaseThankYou()
         setupCustomizeColors()
         setupUseEnglish()
@@ -99,7 +112,21 @@ class SettingsActivity : SimpleActivity() {
                 it.setTextColor(getProperPrimaryColor())
             }
         }
+
     }
+    private fun setupAutoRecord() {
+        binding.settingsAutoRecordCalls.isChecked = config.autoRecordEnabled
+
+        binding.settingsAutoRecordCallsHolder.setOnClickListener {
+            binding.settingsAutoRecordCalls.toggle()
+            config.autoRecordEnabled = binding.settingsAutoRecordCalls.isChecked
+        }
+    }
+
+
+
+
+
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         updateMenuItemColors(menu)
@@ -132,7 +159,7 @@ class SettingsActivity : SimpleActivity() {
         }
     }
 
-    private fun setupLanguage() {
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU) private fun setupLanguage() {
         binding.apply {
             settingsLanguage.text = Locale.getDefault().displayLanguage
             settingsLanguageHolder.beVisibleIf(isTiramisuPlus())

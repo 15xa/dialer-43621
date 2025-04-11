@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.viewpager.widget.ViewPager
 import com.google.android.material.snackbar.Snackbar
 import com.simplemobiletools.commons.dialogs.ChangeViewTypeDialog
@@ -49,7 +50,11 @@ class MainActivity : SimpleActivity() {
     private var storedStartNameWithSurname = false
     var cachedContacts = ArrayList<Contact>()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
+
         isMaterialActivity = true
         super.onCreate(savedInstanceState)
         setContentView(binding.root)

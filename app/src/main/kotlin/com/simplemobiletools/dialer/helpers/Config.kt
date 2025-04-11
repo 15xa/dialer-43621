@@ -2,7 +2,11 @@ package com.simplemobiletools.dialer.helpers
 
 import android.content.ComponentName
 import android.content.Context
+import androidx.core.content.edit
+import android.content.SharedPreferences
 import android.telecom.PhoneAccountHandle
+import androidx.core.content.edit
+import androidx.preference.PreferenceManager
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.simplemobiletools.commons.helpers.BaseConfig
@@ -11,6 +15,12 @@ import com.simplemobiletools.dialer.extensions.putPhoneAccountHandle
 import com.simplemobiletools.dialer.models.SpeedDial
 
 class Config(context: Context) : BaseConfig(context) {
+    var autoRecordEnabled: Boolean
+        get() = prefs.getBoolean("auto_record_enabled", true)
+        set(value) {
+            prefs.edit() { putBoolean("auto_record_enabled", value) }
+        }
+
     companion object {
         fun newInstance(context: Context) = Config(context)
     }
